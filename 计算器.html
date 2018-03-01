@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>vuex计算器</title>
+	<script src="vue.js"></script>
+	<script src = "vuex.js"></script>
+	<style>
+		#app{margin-top:50px;margin-left:400px;width:280px;background-color: #ddd}
+		.result{font-size:40px;text-align:right;color:black;padding-top:150px;}
+		.enter{text-align:right;color:#aaa;font-size:24px;margin:10px 0;}
+		.list div{display: inline-block;width:70px;height:70px;background-color: white;color:#aaa;line-height:70px;font-size:24px;border:1px solid #eee;text-align:center;box-sizing:border-box;cursor:pointer;}
+		.list div:first-child{color:red;}
+		.list div:last-child{background-color: orange;}
+	</style>
+</head>
+<body>
+	<div id = "app">
+		<div class = "result">{{result}}</div>
+		<div class = "enter">{{enter === ""?0:enter}}</div>
+		<div class = "keys">
+			<div class = "list">
+				<keyboard v-for = "item in keys" :value = "item"></keyboard>
+			</div>
+		</div>
+	</div>
+	<script>
+		Vue.component('keyboard',{
+			props : ['value'],
+			template : `<div @click = "getKeyboardValue" :data-value = "value">{{value}}</div>`,
+			methods : {
+				getKeyboardValue(){
+					let value = event.target.dataset.value;
+					this.$store.commit('calculate',value);
+				}
+			}
+		});
+		const store = new Vuex.Store({
+			state : {
+				result : "",
+				enter : ""
+			},
+			mutations : {
+				calculate(state,value){
+					if(value === "="){
+						state.result = eval (state.enter);
+						state.enter +=value;
+					}else if(value === 'clear'){
+						state.result = state.enter = '';
+					}else{
+						state.enter +=value;
+					}
+				}
+			}
+		});
+		const app = new Vue({
+			el : "#app",
+			store,
+			data : {
+				keys : [
+					'clear','+','-','*','7','8','9','/','4','5','6','0','1','2','3','=',
+				]
+			},
+			computed:{
+				result(){
+					return this.$store.state.result;
+				},
+				enter(){
+					return this.$store.state.enter;
+				}
+			}
+			
+		});
+	</script>
+</body>
+</html>
